@@ -71,6 +71,7 @@ public class PhotoGalleryFragment extends Fragment implements ThumbDownloader.Up
     @Override
     public void onDestroy() {
         super.onDestroy();
+        downloader.clear();
         downloader.quit();
     }
 

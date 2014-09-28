@@ -31,6 +31,11 @@ public class ThumbDownloader<Token> extends HandlerThread {
         public void updatePhoto(ImageView view, BitmapDrawable drawable);
     }
 
+    public void clear() {
+        map.clear();
+        mHandler.removeMessages(MESSAGE_WHAT);
+    }
+
     public ThumbDownloader(Handler handler, UpdatePhoto updatePhoto) {
         super(TAG);
         photoHandler = handler;
@@ -74,6 +79,7 @@ public class ThumbDownloader<Token> extends HandlerThread {
                 @Override
                 public void run() {
                     updatePhoto.updatePhoto((ImageView) token, drawable);
+                    map.remove(token);
                 }
             });
         } catch (IOException e) {
