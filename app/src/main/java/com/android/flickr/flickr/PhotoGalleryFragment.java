@@ -102,6 +102,17 @@ public class PhotoGalleryFragment extends Fragment implements ThumbDownloader.Up
     }
 
     @Override
+    public void onPrepareOptionsMenu(Menu menu) {
+        super.onPrepareOptionsMenu(menu);
+        MenuItem searchOn = menu.findItem(R.id.search_on);
+        if (PollService.isServiceOn(getActivity())) {
+            searchOn.setTitle(getString(R.string.search_on));
+        } else {
+            searchOn.setTitle(getString(R.string.search_off));
+        }
+    }
+
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.search_button:
@@ -114,6 +125,13 @@ public class PhotoGalleryFragment extends Fragment implements ThumbDownloader.Up
                         .commit();
                 updateItems();
                 return true;
+            case R.id.search_on:
+                boolean search = !PollService.isServiceOn(getActivity());
+                PollService.setAlarm(getActivity(), search);
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+                    getActivity().invalidateOptionsMenu();
+                }
+                return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
@@ -121,6 +139,14 @@ public class PhotoGalleryFragment extends Fragment implements ThumbDownloader.Up
 
     public void updateItems() {
         new FechItemsTask().execute();
+    }
+
+    private void setLastFetchedId(ArrayList<GalleryItem> items){
+        String id = items.get(0).getId();
+        PreferenceManager.getDefaultSharedPreferences(getActivity())
+                .edit()
+                .putString(FlickrFetchr.PREF_RESULT_ID, id)
+                .commit();
     }
 
     private void setupAdapter() {
@@ -135,6 +161,7 @@ public class PhotoGalleryFragment extends Fragment implements ThumbDownloader.Up
     }
 
     private class FechItemsTask extends AsyncTask<Void, Void, ArrayList<GalleryItem>> {
+
         @Override
         protected ArrayList<GalleryItem> doInBackground(Void... voids) {
             String query = PreferenceManager
@@ -151,6 +178,7 @@ public class PhotoGalleryFragment extends Fragment implements ThumbDownloader.Up
         protected void onPostExecute(ArrayList<GalleryItem> items) {
             super.onPostExecute(items);
             mItems = items;
+            setLastFetchedId(items);
             setupAdapter();
         }
     }

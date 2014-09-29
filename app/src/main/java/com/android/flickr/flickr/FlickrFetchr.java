@@ -22,6 +22,7 @@ public class FlickrFetchr {
 
     public static final String TAG                  = "FlickrFetchr";
     public static final String SHARED_QUERY         = "searchQuery";
+    public static final String PREF_RESULT_ID       = "id";
 
     private static final String ENDPOINT            = "https://api.flickr.com/services/rest/";
     private static final String API_KEY             = "72655d5cb0d493a295533b693e07dee1";

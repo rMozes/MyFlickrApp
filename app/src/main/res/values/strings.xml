@@ -7,5 +7,9 @@
     <string name="search_button">Search</string>
     <string name="clear_button">Clear</string>
     <string name="search_hint">Enter the search text</string>
+    <string name="search_on">Service On</string>
+    <string name="search_off">Service Off</string>
+    <string name="new_pictures_title">New PhotoGallery Pictures</string>
+    <string name="new_pictures_text">You have new pictures in PhotoGallery.</string>
 
 </resources>
