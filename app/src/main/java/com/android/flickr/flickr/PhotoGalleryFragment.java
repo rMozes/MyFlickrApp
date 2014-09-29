@@ -1,8 +1,11 @@
 package com.android.flickr.flickr;
 
+import android.app.SearchManager;
+import android.app.SearchableInfo;
 import android.content.Context;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
@@ -18,6 +21,7 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.GridView;
 import android.widget.ImageView;
+import android.widget.SearchView;
 
 import java.util.ArrayList;
 
@@ -86,6 +90,15 @@ public class PhotoGalleryFragment extends Fragment implements ThumbDownloader.Up
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
         inflater.inflate(R.menu.photo_gallery, menu);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+            MenuItem item = menu.findItem(R.id.search_button);
+            SearchView searchView = (SearchView) item.getActionView();
+            SearchManager manager = (SearchManager) getActivity()
+                    .getSystemService(Context.SEARCH_SERVICE);
+            SearchableInfo searchableInfo = manager
+                    .getSearchableInfo(getActivity().getComponentName());
+            searchView.setSearchableInfo(searchableInfo);
+        }
     }
 
     @Override
