@@ -5,10 +5,14 @@ import android.graphics.drawable.BitmapDrawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
+import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
@@ -47,8 +51,9 @@ public class PhotoGalleryFragment extends Fragment implements ThumbDownloader.Up
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setRetainInstance(true);
+        setHasOptionsMenu(true);
 
-        new FechItemsTask().execute();
+        updateItems();
 
         mHandler = new Handler();
         downloader = new ThumbDownloader<ImageView>(mHandler, this);
@@ -75,6 +80,36 @@ public class PhotoGalleryFragment extends Fragment implements ThumbDownloader.Up
         downloader.quit();
     }
 
+
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
+        inflater.inflate(R.menu.photo_gallery, menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.search_button:
+                getActivity().onSearchRequested();
+                return true;
+            case R.id.clear_button:
+                PreferenceManager.getDefaultSharedPreferences(getActivity())
+                        .edit()
+                        .putString(FlickrFetchr.SHARED_QUERY, null)
+                        .commit();
+                updateItems();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
+    public void updateItems() {
+        new FechItemsTask().execute();
+    }
+
     private void setupAdapter() {
         if (getActivity() == null || mGridView == null) {
             return;
@@ -89,7 +124,14 @@ public class PhotoGalleryFragment extends Fragment implements ThumbDownloader.Up
     private class FechItemsTask extends AsyncTask<Void, Void, ArrayList<GalleryItem>> {
         @Override
         protected ArrayList<GalleryItem> doInBackground(Void... voids) {
-            return new FlickrFetchr().fetchItems();
+            String query = PreferenceManager
+                    .getDefaultSharedPreferences(PhotoGalleryFragment.this.getActivity())
+                    .getString(FlickrFetchr.SHARED_QUERY, null);
+            if (query != null) {
+                return new FlickrFetchr().search(query);
+            } else {
+                return new FlickrFetchr().fetchItems();
+            }
         }
 
         @Override

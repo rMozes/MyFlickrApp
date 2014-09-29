@@ -20,33 +20,53 @@ import java.util.ArrayList;
  */
 public class FlickrFetchr {
 
-    public static final String TAG = "FlickrFetchr";
+    public static final String TAG                  = "FlickrFetchr";
+    public static final String SHARED_QUERY         = "searchQuery";
 
     private static final String ENDPOINT            = "https://api.flickr.com/services/rest/";
     private static final String API_KEY             = "72655d5cb0d493a295533b693e07dee1";
     private static final String METHOD_GET_RECENT   = "flickr.photos.getRecent";
+    private static final String METHOD_SEARCH       = "flickr.photos.search";
     private static final String PARAM_EXTRAS        = "extras";
     private static final String EXTRA_SMALL_URL     = "url_s";
+    private static final String EXTRA_TEXT          = "text";
 
     private static final String XML_PHOTO           = "photo";
 
     public ArrayList<GalleryItem> fetchItems() {
+        String url = Uri.parse(ENDPOINT).buildUpon()
+                .appendQueryParameter("method", METHOD_GET_RECENT)
+                .appendQueryParameter("api_key", API_KEY)
+                .appendQueryParameter(PARAM_EXTRAS, EXTRA_SMALL_URL)
+                .build()
+                .toString();
+
+        return downloadPhotos(url);
+    }
+
+    public ArrayList<GalleryItem> search(String query) {
+        String url = Uri.parse(ENDPOINT).buildUpon()
+                .appendQueryParameter("method", METHOD_SEARCH)
+                .appendQueryParameter("api_key", API_KEY)
+                .appendQueryParameter(PARAM_EXTRAS, EXTRA_SMALL_URL)
+                .appendQueryParameter(EXTRA_TEXT, query)
+                .build()
+                .toString();
+        Log.i(TAG, "Serch is started: "+query);
+
+        return downloadPhotos(url);
+    }
+
+    private ArrayList<GalleryItem> downloadPhotos(String url) {
         ArrayList<GalleryItem> items = new ArrayList<GalleryItem>();
-        try {
-            String url = Uri.parse(ENDPOINT).buildUpon()
-                    .appendQueryParameter("method", METHOD_GET_RECENT)
-                    .appendQueryParameter("api_key", API_KEY)
-                    .appendQueryParameter(PARAM_EXTRAS, EXTRA_SMALL_URL)
-                    .build()
-                    .toString();
+
+        try{
             String xmlString = getUrls(url);
             Log.i(TAG, "Received xml: "+xmlString);
-
             XmlPullParserFactory factory = XmlPullParserFactory.newInstance();
             XmlPullParser xmlPullParser = factory.newPullParser();
             xmlPullParser.setInput(new StringReader(xmlString));
             parseItems(items, xmlPullParser);
-
         } catch (IOException e) {
             Log.e(TAG, "Failed to fetch items", e);
         } catch (XmlPullParserException e) {

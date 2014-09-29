@@ -4,5 +4,8 @@
     <string name="app_name">Flickr</string>
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
+    <string name="search_button">Search</string>
+    <string name="clear_button">Clear</string>
+    <string name="search_hint">Enter the search text</string>
 
 </resources>
